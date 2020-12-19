@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+  <title>Office Vis</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Office Vis
+      </h1>
+      <p class="subtitle">
+        Visualising spatial and temporal office layout networks.
+      </p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <div id="app">
+        <button onclick="apart()">Apart</button>
+        <svg id="canvas">
+          <!-- <circle r="5" fill="red"></circle> -->
+          <!-- <person v-for="person in persons" v-bind:person="person" v-bind:key="person.id"></person> -->
+        </svg>
+
+
+        <!-- <svg id="canvas">
+          <circl
+          v-for="person in persons"
+          v-bind:person="person"
+          v-bind:key="person.id"
+          ></circle>
+
+        </svg> -->
+
+      </div>
+    </div>
+  </section>
+  <script src="index.js"></script>
+</body>
+</html>
