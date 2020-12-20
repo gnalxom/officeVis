@@ -6,13 +6,14 @@ var numNodes = 20
 var allNodes = d3.range(numNodes).map(function(d) {
   return {radius: 5, sel:true, pos:d3.randomInt(1,5)()}
 })
+margin = 20
 
 var pos = [
   {'x':width / 2, 'y':height / 2},
-  {'x':width-20, 'y':height-20},
-  {'x':width / 4, 'y':height-20},
+  {'x':0.75*width, 'y':height*0.75},
+  {'x':width / 4, 'y':height*0.75},
   {'x':width / 4, 'y':height / 4},
-  {'x':width-20, 'y':height / 4},
+  {'x':0.75*width, 'y':height / 4},
 ]
 
 
@@ -64,11 +65,10 @@ function updateColor(centered){
       }
 
     })
-
 }
 
-
 let centered = false
+
 function apart(){
   if(centered){
     allNodes.forEach((node, i) => {
@@ -99,39 +99,12 @@ function apart(){
   simulation.nodes(selNodes)
   simulation.alpha(1).restart();
   centered =! centered
+  d3.select('#state').text(function(){
+    return (centered ? 'Home': 'Work')
+  })
 
 
 }
-
-// function apart(){
-//   console.log(centered);
-//   if (centered){
-//     allNodes.forEach((node, i) => {
-//       if (node.sel) {
-//         node.pos = d3.randomInt(1,4)()
-//       }else{
-//         node.sel = true
-//       }
-//     });
-//     simulation.force('charge', d3.forceManyBody().strength((-1/selNodes.length)*200))
-//   }else{
-//     allNodes.forEach((node, i) => {
-//       if(Math.random()>0.5) {
-//         node.sel =! node.sel
-//         node.pos = 0
-//       }
-//     });
-//     simulation.force('charge', d3.forceManyBody().strength((1/selNodes.length)*250))
-//   }
-//   selNodes = allNodes.filter((node) => node.sel)
-//
-//
-//
-//   simulation.nodes(selNodes)
-//   console.log();
-//   simulation.alpha(1).restart();
-//   centered =! centered
-// }
 
 Vue.component('person', {
   props: ['person'],
@@ -142,7 +115,8 @@ Vue.component('person', {
 let app = new Vue({
   el: '#app',
   data: {
-    persons: []
+    persons: [],
+    state:'Centered'
   },
   created: function(){
     for (let id=0;id<100;id++){
