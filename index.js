@@ -1,4 +1,6 @@
 // https://www.d3indepth.com/force-layout/
+// https://observablehq.com/@jkeohan/intro-to-forced-layouts
+// https://www.youtube.com/watch?v=gbMiGtGcq6E&ab_channel=SwizecTeller
 
 
 var width = 400, height = 400
@@ -15,7 +17,46 @@ var pos = [
   {'x':width / 4, 'y':height / 4},
   {'x':0.75*width, 'y':height / 4},
 ]
+let connections = {}
+d3.range(numNodes).forEach((d, i) => {
+  connections[i]={}
 
+});
+
+d3.select('#canvas').append("g").attr("id", "links");
+d3.select('#canvas').append("g").attr("id", "nodes");
+
+
+let links = []
+
+function updateLinks() {
+  var u =  d3.select('#links')
+    .selectAll('line')
+    .data(links)
+
+  u.enter()
+    .append('line')
+    .merge(u)
+    .attr('x1', function(d) {
+      return allNodes[d.source]["x"]
+    })
+    .attr('y1', function(d) {
+      return allNodes[d.source]["y"]
+    })
+    .attr('x2', function(d) {
+      return allNodes[d.target]["x"]
+    })
+    .attr('y2', function(d) {
+      return allNodes[d.target]["y"]
+    })
+    .attr('stroke', 'black')
+    .attr('stroke-width', function(d){
+      return d.strength*0.05
+    })
+    .attr("stroke-opacity", 0.5);
+
+  u.exit().remove()
+}
 
 let selNodes = allNodes.filter((node) => node.sel)
 let strength = -10
@@ -27,11 +68,13 @@ var simulation = d3.forceSimulation(selNodes)
   .force('collision', d3.forceCollide().radius(function(d) {
     return d.radius
   }))
+  // .force('link', d3.forceLink().links(links))
   .on('tick', ticked);
 
 function ticked() {
+  updateLinks()
 
-  var u =  d3.select('#canvas')
+  var u =  d3.select('#nodes')
     .selectAll('circle')
     .data(allNodes)
 
@@ -39,7 +82,7 @@ function ticked() {
     .append('circle')
     .attr('r', 5)
     .attr('fill', function(d){
-        return 'none'
+        return 'white'
     })
     .attr('stroke', 'black')
     .merge(u)
@@ -51,6 +94,7 @@ function ticked() {
     })
 
   u.exit().remove()
+
 }
 
 function updateColor(centered){
@@ -61,13 +105,41 @@ function updateColor(centered){
       if (!centered &&d.sel) {
         return 'red'
       }else{
-        return 'none'
+        return 'white'
       }
 
     })
 }
 
 let centered = false
+
+function addLinks(){
+  allNodes.forEach((nodei, i) => {
+    if(nodei.sel){
+      allNodes.forEach((nodej, j) => {
+        if(nodej.sel){
+          if (j in connections[i]) {
+            connections[i][j]+=1
+          }else{
+            connections[i][j]=1
+          }
+        }
+      })
+    }
+  });
+
+
+  let links = []
+
+  Object.keys(connections).forEach((source, i) => {
+    Object.keys(connections[source]).forEach((target, j) => {
+      links.push({source,target, strength:connections[source][target]});
+    });
+  });
+
+  return links
+
+}
 
 function apart(){
   if(centered){
@@ -82,28 +154,28 @@ function apart(){
 
   }else{
     allNodes.forEach((node, i) => {
-      if(Math.random()>0.5) {
-        node.sel = false
-      }else{
+      let chance = Math.random()
+      if(chance<0.2) {
         node.pos = 0
+      }else{
+        node.sel = false
       }
     });
+    links = []
 
-    strength = 5
+    links = addLinks()
 
   }
   updateColor(centered)
 
   selNodes = allNodes.filter((node) => node.sel)
   simulation.force('charge', d3.forceManyBody().strength(strength))
-  simulation.nodes(selNodes)
+  simulation.nodes(allNodes)
   simulation.alpha(1).restart();
   centered =! centered
   d3.select('#state').text(function(){
     return (centered ? 'Home': 'Work')
   })
-
-
 }
 
 Vue.component('person', {
