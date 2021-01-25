@@ -18,12 +18,48 @@
       <p class="subtitle">
         Visualising spatial and temporal office layout networks.
       </p>
+      <div>
+          <input id="num" class="input" type="number" placeholder="3">
+        <div class="select">
+          <select id="n">
+            <option value=5>1 Week </option>
+            <option value=10>2 Weeks </option>
+            <option value=20>1 month </option>
+          </select>
+        </div>
+        <div class="select">
+          <select id="scenarios">
+            <option value="AS-WAS">AS-WAS (Centralised)</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Hub">Hub</option>
+          </select>
+        </div>
+        <!-- <button class="button" id="state" onclick="apart()">Work</button> -->
+        <button class="button" id="state" onclick="simulate()">Simulate</button>
+        <button class="button" id="state" onclick="stop()">Stop</button>
+        <button class="button" id="state" onclick="reset()">Reset</button><br />
+        <label class="checkbox">
+          <input type="checkbox" id="toggleColor">Toggle Colors (Blue = Unique Connections, Red = Total interactions)
+        </label>
+      </div>
     </div>
-  </section>
-  <section class="section">
     <div class="container">
       <div id="app">
-        <button class="button" id="state" onclick="apart()">Work</button>
+        <br />
+        <!-- <button class="button" id="state" onclick="toggleColor()">Show connections</button> -->
+        <div class="has-text-weight-bold">
+          <p>
+              Day: <span id="counter">0</span><br />
+              Unique Connections:<span id="conns">0</span><br />
+              Total Interactions:<span id="ints">0</span><br />
+          </p>
+          <br />
+
+        </div>
+        <p>
+
+        </p>
+
         <svg id="canvas">
           <!-- <circle r="5" fill="red"></circle> -->
           <!-- <person v-for="person in persons" v-bind:person="person" v-bind:key="person.id"></person> -->
