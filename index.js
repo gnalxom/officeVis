@@ -247,10 +247,12 @@ let links = []
 
 let m = d3.select('#matrix')
 m.append("rect")
-.attr('calss', 'background')
+.attr('class', 'background')
 .attr('width', width)
 .attr('height', height)
-.attr('fill','#eee')
+
+let r = m.append("g").attr('class', 'rows');
+let c = m.append("g").attr('class', 'cols');
 
 drawMatrix()
 
@@ -261,7 +263,7 @@ function setupMatrix(numNodes){
   allNodes.forEach(function(node, i) {
     node.index = i;
     node.count = 0;
-    matrix[i] = d3.range(numNodes).map(function(j) { return {x: j, y: i, z: 1}; });
+    matrix[i] = d3.range(numNodes).map(function(j) { return {x: j, y: i, z: 0}; });
   });
 }
 
@@ -274,7 +276,11 @@ function drawMatrix(){
       // z = d3.scaleOrdinal().domain([0,1000]).clamp(true),
       // c = d3.scaleOrdinal().domain(d3.range(10));
 
-  var row = m.selectAll(".row")
+
+
+
+
+  var row = r.selectAll(".row")
       .data(matrix);
 
   row.exit().remove();
@@ -304,9 +310,6 @@ function drawMatrix(){
 
   row = row.merge(rowEnter)
 
-
-
-
   // row.append("text")
   //       .attr("x", -6)
   //       .attr("y", function(d, i) { return x(i)/2; })
@@ -314,17 +317,16 @@ function drawMatrix(){
   //       .attr("text-anchor", "end")
   //       .text(function(d, i) { return i});
 
-  var column = m.selectAll(".column")
+  var column = c.selectAll(".col")
       .data(matrix);
 
   column.exit().remove();
 
   let columnEnter = column.enter().append("g")
-      .attr("class", "column");
+      .attr("class", "col");
 
   function updateCol(){
-    d3.selectAll(".column").transition().attr("transform", function(d, i) {
-      console.log(i);
+    d3.selectAll(".col").transition().attr("transform", function(d, i) {
       return "translate(" + x(i) + ")rotate(-90)"}).duration(50)
   }
 
@@ -343,8 +345,10 @@ function drawMatrix(){
     let cellEnter = cell.enter();
     cellEnter.append("rect")
         .attr("class", "cell")
-        // .style("fill-opacity", function(d) { return z(d.z); })
-        .style("fill", function(d) { return "none"});
+        .style("fill", function(d) {
+          return "none"
+        });
+
         // // .on("mouseover", mouseover)
         // // .on("mouseout", mouseout);
 
@@ -522,6 +526,29 @@ function updateColor(){
         return connColor(d['connections'])
       }
     })
+
+    var row = d3.selectAll(".row")
+        .data(matrix);
+
+    row.each(function(row){
+      var cell = d3.select(this).selectAll(".cell")
+          .data(row);
+      cell.style("fill", function(d) {
+        return intColor(d['z'])
+      });
+    })
+
+
+    // console.log(d3.selectAll(".cell"))
+
+  // d3.select('#cell')
+  //   .selectAll('rect')
+  //   // .style("fill-opacity", function(d) { return z(d.z); })
+  //   .style("fill", function(d) {
+  //     console.log('here');
+  //     console.log(d);
+  //     // return "blue"
+  //   });
 }
 
 
@@ -548,7 +575,7 @@ function addLinks(){
     })
   });
 
-  console.log("Uniq:", allC/2, "all", allI/2, JSON.stringify(connections));
+  // console.log("Uniq:", allC/2, "all", allI/2, JSON.stringify(connections));
 
 
   let links = []
@@ -556,6 +583,7 @@ function addLinks(){
   Object.keys(connections).forEach((source, i) => {
     Object.keys(connections[source]).forEach((target, j) => {
       links.push({source,target, strength:connections[source][target]});
+      matrix[source][target]["z"] = connections[source][target]
     });
   });
 

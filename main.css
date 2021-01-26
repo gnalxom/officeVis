@@ -10,11 +10,12 @@
 }
 
 .background {
-  fill: #eee;
+  fill: #fff;
+  stroke:#eee;
 }
 
 line {
-  stroke: #fff;
+  stroke: #eee;
 }
 
 text.active {
