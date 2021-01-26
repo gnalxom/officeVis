@@ -4,7 +4,7 @@
 
 
 var width = 400, height = 400
-var numNodes = 3
+var numNodes = 5
 let scale = 0.3
 
 margin = 20

@@ -4,5 +4,6 @@
 }
 #num{
   width: auto;
+  max-width: 100px;
   display: inline-block;
 }
