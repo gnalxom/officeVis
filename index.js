@@ -208,7 +208,7 @@ function assignLocations(locs){
   // })
   allNodes.forEach(node=>{
     let selLoc = 0
-    if (node.sel) selLoc = d3.randomInt(1,locs.length)();
+    selLoc = d3.randomInt(1,locs.length)();
     let { x , y } = locs[selLoc]
     node.pos= { x , y }
     node.loc = selLoc
@@ -447,13 +447,13 @@ function addLinks(){
 function apart(){
   allNodes.forEach((node, i) => {
     node.sel = Math.random() >= 0.5
-    if(node.sel){
-      node.loc = d3.randomInt(1,pos.length)()
-      node.pos = pos[node.loc]
-    } else{
-      node.loc = 0
-      node.pos = pos[0]
-    }
+    node.loc = d3.randomInt(1,pos.length)()
+    node.pos = pos[node.loc]
+    // if(node.sel){
+    // } else{
+    //   node.loc = 0
+    //   node.pos = pos[0]
+    // }
   });
 
   links = []
