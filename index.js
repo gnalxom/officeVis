@@ -2,8 +2,9 @@
 // https://observablehq.com/@jkeohan/intro-to-forced-layouts
 // https://www.youtube.com/watch?v=gbMiGtGcq6E&ab_channel=SwizecTeller
 
-
-var width = 400, height = 400
+let width = window.innerWidth*0.8
+width = width > 500 ? 500 : width 
+var height = width
 var numNodes = 5
 let scale = 0.3
 
