@@ -287,15 +287,23 @@ function drawMatrix(){
     d3.selectAll(".row").transition().attr("transform", function(d, i) {
       return "translate(0," + x(i) + ")";
     }).duration(50)
+
+    d3.selectAll(".row").each(rowCell);
+    d3.selectAll(".cell").transition().attr("x", function(d) {
+      return x(d.x);
+    }).attr("width", width/numNodes).attr("height", width/numNodes).duration(50);
+
   }
 
   updateRow()
+
 
 
   rowEnter.append("line")
         .attr("x2", width);
 
   row = row.merge(rowEnter)
+
 
 
 
@@ -306,40 +314,41 @@ function drawMatrix(){
   //       .attr("text-anchor", "end")
   //       .text(function(d, i) { return i});
 
-  // var column = m.selectAll(".column")
-  //     .data(matrix)
-  //   .enter().append("g")
-  //     .attr("class", "column")
-  //     .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-  //
-  // column.exit().remove()
-  //
-  // column.append("line")
-  //     .attr("x1", -width)
-  //     .merge(column);
-  //
+  var column = m.selectAll(".column")
+      .data(matrix);
 
+  column.exit().remove();
 
+  let columnEnter = column.enter().append("g")
+      .attr("class", "column");
 
-  function row(row) {
+  function updateCol(){
+    d3.selectAll(".column").transition().attr("transform", function(d, i) {
+      console.log(i);
+      return "translate(" + x(i) + ")rotate(-90)"}).duration(50)
+  }
+
+  updateCol()
+
+  columnEnter.append("line")
+      .attr("x1", -width);
+
+  column = column.merge(columnEnter);
+
+  function rowCell(row) {
     var cell = d3.select(this).selectAll(".cell")
-        .data(row)
-      .enter().append("rect")
+        .data(row);
+    cell.exit().remove();
+
+    let cellEnter = cell.enter();
+    cellEnter.append("rect")
         .attr("class", "cell")
-        .attr("x", function(d) {
-          console.log(x(d.x));
-          return x(d.x);
-        })
-        .attr("width", 20)
-        .attr("height", 20)
-        // .attr("width", width/numNodes)
-        // .attr("height", width/numNodes)
         // .style("fill-opacity", function(d) { return z(d.z); })
-        .style("fill", function(d) { return "blue"});
+        .style("fill", function(d) { return "none"});
         // // .on("mouseover", mouseover)
         // // .on("mouseout", mouseout);
 
-    cell.exit().remove()
+    cell= cell.merge(cellEnter)
   }
 
 }
