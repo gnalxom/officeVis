@@ -1,9 +1,22 @@
-#canvas{
+#canvas, #canvas2{
   width:100vw;
-  height:100vh
+  height:100vw;
+  max-height: 600px;
 }
 #num{
   width: auto;
   max-width: 100px;
   display: inline-block;
+}
+
+.background {
+  fill: #eee;
+}
+
+line {
+  stroke: #fff;
+}
+
+text.active {
+  fill: red;
 }

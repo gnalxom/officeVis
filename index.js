@@ -2,8 +2,9 @@
 // https://observablehq.com/@jkeohan/intro-to-forced-layouts
 // https://www.youtube.com/watch?v=gbMiGtGcq6E&ab_channel=SwizecTeller
 
+
 let width = window.innerWidth*0.8
-width = width > 500 ? 500 : width 
+width = width > 500 ? 500 : width
 var height = width
 var numNodes = 5
 let scale = 0.3
@@ -171,12 +172,15 @@ let currScenario = scenarios["AS-WAS"]
 let pos=currScenario['locs']
 updateLocs()
 var allNodes;
+let matrix;
 setupNodes(numNodes)
 
 function setupNodes(numNodes){
   allNodes = d3.range(numNodes).map(function(d) {
     return {radius: 5, sel:true, pos:pos[0], interactions:0, connections:0, loc:0 }
   })
+
+  setupMatrix(numNodes)
 }
 updateColor()
 // assignLocations(pos)
@@ -195,6 +199,7 @@ d3.select('#scenarios').on('change', function(){
 d3.select('#num').on('change', function(){
   numNodes = d3.select(this).property('value')
   setupNodes(numNodes)
+  drawMatrix()
   reset()
   //
   // currScenario = scenarios[d3.select(this).property('value')]
@@ -229,15 +234,119 @@ function resetConnections(){
 }
 resetConnections()
 
-
+var margin = {top: 10, right: 0, bottom: 10, left: 20}
 d3.select('#canvas').append("g").attr("id", "locsLinks");
 d3.select('#canvas').append("g").attr("id", "locs");
 d3.select('#canvas').append("g").attr("id", "links");
 d3.select('#canvas').append("g").attr("id", "nodes");
-
+d3.select('#canvas2').append("g").attr("id", "matrix")
+// .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
 
 let links = []
 
+
+let m = d3.select('#matrix')
+m.append("rect")
+.attr('calss', 'background')
+.attr('width', width)
+.attr('height', height)
+.attr('fill','#eee')
+
+drawMatrix()
+
+  // Compute index per node.
+
+function setupMatrix(numNodes){
+  matrix = []
+  allNodes.forEach(function(node, i) {
+    node.index = i;
+    node.count = 0;
+    matrix[i] = d3.range(numNodes).map(function(j) { return {x: j, y: i, z: 1}; });
+  });
+}
+
+
+
+function drawMatrix(){
+  var x = d3.scaleBand()
+      .range([0, width])
+      .domain(d3.range(numNodes));
+      // z = d3.scaleOrdinal().domain([0,1000]).clamp(true),
+      // c = d3.scaleOrdinal().domain(d3.range(10));
+
+  var row = m.selectAll(".row")
+      .data(matrix);
+
+  row.exit().remove();
+
+  let rowEnter = row.enter().append("g")
+      .attr("class", "row");
+
+
+  function updateRow(){
+    d3.selectAll(".row").transition().attr("transform", function(d, i) {
+      return "translate(0," + x(i) + ")";
+    }).duration(50)
+  }
+
+  updateRow()
+
+
+  rowEnter.append("line")
+        .attr("x2", width);
+
+  row = row.merge(rowEnter)
+
+
+
+  // row.append("text")
+  //       .attr("x", -6)
+  //       .attr("y", function(d, i) { return x(i)/2; })
+  //       .attr("dy", ".32em")
+  //       .attr("text-anchor", "end")
+  //       .text(function(d, i) { return i});
+
+  // var column = m.selectAll(".column")
+  //     .data(matrix)
+  //   .enter().append("g")
+  //     .attr("class", "column")
+  //     .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+  //
+  // column.exit().remove()
+  //
+  // column.append("line")
+  //     .attr("x1", -width)
+  //     .merge(column);
+  //
+
+
+
+  function row(row) {
+    var cell = d3.select(this).selectAll(".cell")
+        .data(row)
+      .enter().append("rect")
+        .attr("class", "cell")
+        .attr("x", function(d) {
+          console.log(x(d.x));
+          return x(d.x);
+        })
+        .attr("width", 20)
+        .attr("height", 20)
+        // .attr("width", width/numNodes)
+        // .attr("height", width/numNodes)
+        // .style("fill-opacity", function(d) { return z(d.z); })
+        .style("fill", function(d) { return "blue"});
+        // // .on("mouseover", mouseover)
+        // // .on("mouseout", mouseout);
+
+    cell.exit().remove()
+  }
+
+}
+
+
+
+// ----
 function updateLinks() {
   var u =  d3.select('#links')
     .selectAll('line')
