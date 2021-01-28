@@ -209,18 +209,21 @@ d3.select('#num').on('change', function(){
 })
 
 function assignLocations(locs){
-  // d3.range(numNodes).map(function(d) {
-  //   return {radius: 5, sel:true, pos:d3.randomInt(1,5)()}
-  // })
+  let chances = []
+  locs.forEach((loc, i) => {
+    if (i==0) return;
+    //else
+    chances = chances.concat(Array(loc.size * 10).fill(i))
+  });
+
   allNodes.forEach(node=>{
     let selLoc = 0
-    selLoc = d3.randomInt(1,locs.length)();
+    let allocations = []
+    selLoc = chances[d3.randomInt(0,chances.length)()]
     let { x , y } = locs[selLoc]
     node.pos= { x , y }
     node.loc = selLoc
   })
-
-
 }
 
 
@@ -275,10 +278,6 @@ function drawMatrix(){
       .domain(d3.range(numNodes));
       // z = d3.scaleOrdinal().domain([0,1000]).clamp(true),
       // c = d3.scaleOrdinal().domain(d3.range(10));
-
-
-
-
 
   var row = r.selectAll(".row")
       .data(matrix);
@@ -380,11 +379,10 @@ function updateLinks() {
     .attr('y2', function(d) {
       return allNodes[d.target]["y"]
     })
-    .attr('stroke', 'black')
     .attr('stroke-width', function(d){
       return d.strength*0.05
     })
-    .attr("stroke-opacity", 0.5);
+    .attr('class', 'nodeLinks');
 
     u.exit().remove()
 
@@ -464,9 +462,7 @@ function updateLocs(){
     .attr('y2', function(d) {
       return currScenario['locs'][d[1]]['y']
     })
-    .attr('stroke', 'black')
-    .attr('stroke-width', 4)
-    .attr("stroke-opacity", 0.25);
+    .attr('class', 'locLinks');
 
     l.exit().remove()
 
@@ -510,10 +506,14 @@ d3.select('#toggleColor').on('click', function(){
 })
 
 function updateColor(){
+  let connDomain = d3.extent(allNodes.map(n => n['connections']))
+  let intDomain = d3.extent(allNodes.map(n => n['interactions']))
+  connDomain = [0,10]
+  intDomain = [0,10]
 
-  let  connColor = d3.scaleLinear().domain([1,10])
+  let  connColor = d3.scaleLinear().domain(connDomain)
     .range(["white", "blue"])
-  let  intColor = d3.scaleLinear().domain([1,10])
+  let  intColor = d3.scaleLinear().domain(intDomain)
     .range(["white", "red"])
   d3.select('#nodes')
     .selectAll('circle')
@@ -527,6 +527,8 @@ function updateColor(){
       }
     })
 
+    // console.log(matrix);
+
     var row = d3.selectAll(".row")
         .data(matrix);
 
@@ -534,7 +536,12 @@ function updateColor(){
       var cell = d3.select(this).selectAll(".cell")
           .data(row);
       cell.style("fill", function(d) {
-        return intColor(d['z'])
+        if(showInteractions){
+          return intColor(d['z'])
+        } else {
+          return (d['z'] > 0 ? connColor(1) : connColor(0))
+
+        }
       });
     })
 
@@ -592,19 +599,15 @@ function addLinks(){
 }
 
 function apart(){
-  allNodes.forEach((node, i) => {
-    node.sel = Math.random() >= 0.5
-    node.loc = d3.randomInt(1,pos.length)()
-    node.pos = pos[node.loc]
-    // if(node.sel){
-    // } else{
-    //   node.loc = 0
-    //   node.pos = pos[0]
-    // }
-  });
+
+}
+
+
+
+function round(){
+  assignLocations(pos)
 
   links = []
-
   links = addLinks()
 
 
@@ -615,12 +618,6 @@ function apart(){
   simulation.force('charge', d3.forceManyBody().strength(strength))
   simulation.nodes(allNodes)
   simulation.alpha(1).restart();
-}
-
-
-
-function round(){
-  apart()
 }
 
 
@@ -697,6 +694,8 @@ function reset(){
   clearInterval(simTimer);
   resetConnections()
   resetLinks()
+  setupMatrix(numNodes)
+
 
   allNodes.forEach((node, i) => {
     node.connections = 0

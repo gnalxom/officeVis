@@ -17,6 +17,16 @@
 line {
   stroke: #eee;
 }
+.locLinks {
+  stroke: #bdbdbd;
+  opacity: 0.5;
+  stroke-width: 4px;
+}
+
+.nodeLinks {
+  stroke: black;
+  opacity: 0.75;
+}
 
 text.active {
   fill: red;
