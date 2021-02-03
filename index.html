@@ -40,10 +40,19 @@
         <!-- <button class="button" id="state" onclick="apart()">Work</button> -->
         <button class="button is-small" id="state" onclick="simulate()">Simulate</button>
         <button class="button is-small" id="state" onclick="stop()">Stop</button>
-        <button class="button is-small" id="state" onclick="reset()">Reset</button><br />
-        <label class="checkbox">
+        <button class="button is-small" id="state" onclick="reset()">Reset</button></br>
+        <Label>Colormap</Label>
+        <div class="select">
+
+          <select id="colorMap" class="select is-small">
+            <option value="social">Social</option>
+            <option value="work">Work</option>
+            <option value="family">Family</option>
+          </select>
+        </div>
+        <!-- <label class="checkbox">
           <input type="checkbox" id="toggleColor">Toggle Colors (Blue = Unique Connections, Red = Total interactions)
-        </label>
+        </label> -->
       </div>
     </div>
     <div class="container">

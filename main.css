@@ -31,3 +31,7 @@ line {
 text.active {
   fill: red;
 }
+
+.select {
+  display: inline-block;
+}

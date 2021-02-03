@@ -8,9 +8,40 @@ width = width > 500 ? 500 : width
 var height = width
 var numNodes = 5
 let scale = 0.3
+let workday = [9,18]
+let workhours = 8
+let lunch = [12]
+let showCol = 'social';
 
 margin = 20
 let colors = ["none","#f5e180","#fc8997","#fecfac","#b9e9a5","#a9f5e7","#b5b7e5"]
+let metrics = {
+  'WFH':{
+    'family': 0.75,
+    'work': 0.5,
+    'social':0.2
+  },
+  'Coporate Office':{
+    'family': 0,
+    'work': 0.9,
+    'social':0.5
+  },
+  'Cafe':{
+    'family': 0,
+    'work': 0.4,
+    'social':0.3
+  },
+  'Cowork Office':{
+    'family': 0,
+    'work': 0.9,
+    'social':0.2
+  },
+  'Satellite':{
+    'family': 0,
+    'work': 0.9,
+    'social':0.5
+  },
+}
 
 let scenarios = {
   "AS-WAS":{
@@ -177,7 +208,7 @@ setupNodes(numNodes)
 
 function setupNodes(numNodes){
   allNodes = d3.range(numNodes).map(function(d) {
-    return {radius: 5, sel:true, pos:pos[0], interactions:0, connections:0, loc:0 }
+    return { radius: 5, sel:true, pos:pos[0], metrics:{},interactions:0, connections:0, loc:0 }
   })
 
   setupMatrix(numNodes)
@@ -194,6 +225,11 @@ d3.select('#scenarios').on('change', function(){
   pos = currScenario['locs']
   assignLocations(pos)
   updateLocs()
+})
+
+d3.select('#colorMap').on('change', function(){
+  showCol = d3.select(this).property('value')
+  updateColor()
 })
 
 d3.select('#num').on('change', function(){
@@ -226,14 +262,21 @@ function assignLocations(locs){
   })
 }
 
-
 let connections;
+
+
 
 function resetConnections(){
   connections = {}
   d3.range(numNodes).forEach((d, i) => {
     connections[i]={}
   });
+
+  allNodes.forEach((node, i) => {
+    node.metrics = {}
+  });
+
+
 }
 resetConnections()
 
@@ -497,34 +540,35 @@ function ticked() {
   u.exit().remove()
 
 }
-let showInteractions = true;
 
 
-d3.select('#toggleColor').on('click', function(){
-  showInteractions = !showInteractions
-  updateColor()
-})
 
 function updateColor(){
-  let connDomain = d3.extent(allNodes.map(n => n['connections']))
-  let intDomain = d3.extent(allNodes.map(n => n['interactions']))
-  connDomain = [0,10]
-  intDomain = [0,10]
+  let colormaps = {
+    'family': "green",
+    'work': "red",
+    'social': "blue"
+  }
 
-  let  connColor = d3.scaleLinear().domain(connDomain)
-    .range(["white", "blue"])
-  let  intColor = d3.scaleLinear().domain(intDomain)
-    .range(["white", "red"])
+  let colorscales = {}
+
+  for (const [key, col] of Object.entries(colormaps)){
+    let dom = [0,d3.max(allNodes.map(n => n.metrics[key]))]
+    if (!dom[1]) dom[1] = 1;
+
+    // if (!dom[1] || dom[1]==0) {
+    //   dom[1] = 1
+    // }
+    colorscales[key] = d3.scaleLinear().domain(dom).range(["white", col])
+  }
+  colorscales['int'] = d3.scaleLinear().domain([0,10]).range(["white", "blue"])
+
   d3.select('#nodes')
     .selectAll('circle')
     .data(allNodes)
     .attr('fill', function(d){
-
-      if(showInteractions){
-        return intColor(d['interactions'])
-      } else {
-        return connColor(d['connections'])
-      }
+      console.log(d.metrics[showCol]);
+      return d.metrics[showCol] ? colorscales[showCol](d.metrics[showCol]) : colorscales[showCol](0)
     })
 
     // console.log(matrix);
@@ -536,12 +580,15 @@ function updateColor(){
       var cell = d3.select(this).selectAll(".cell")
           .data(row);
       cell.style("fill", function(d) {
-        if(showInteractions){
-          return intColor(d['z'])
-        } else {
-          return (d['z'] > 0 ? connColor(1) : connColor(0))
-
-        }
+        return colorscales['int'](d['z'])
+        // return (d['z'] > 0 ? colorscales['social'](1) : colorscales['social'](0))
+        // switch (showCol) {
+        //   case 'conn':
+        //     return (d['z'] > 0 ? connColor(1) : connColor(0))
+        //     break;
+        //   default:
+        //     return intColor(d['z'])
+        // }
       });
     })
 
@@ -564,22 +611,51 @@ function addLinks(){
   let allC = 0
   let allI = 0
   allNodes.forEach((nodei, i) => {
-    allNodes.forEach((nodej, j) => {
-      if ( i == j || nodei.loc == 0) return;
-      if(nodei.loc == nodej.loc){
-        if (j in connections[i]) {
-          connections[i][j]+=1
-          nodei['interactions']+=1
-          allI+=1
-        }else{
-            allI+=1
-            allC+=1
-          connections[i][j]=1
-          nodei['interactions']+=1
-          nodei['connections']+=1
+    let loc = pos[nodei.loc]
+    if (loc.name in metrics) {
+      for (let i=0; i<workhours; i++){
+        for (const [key, value] of Object.entries(metrics[loc.name])){
+          if (!(key in nodei.metrics)) nodei.metrics[key] = 0
+          if (Math.random()< value) nodei.metrics[key] += 1
         }
       }
-    })
+    }
+
+    if ( nodei.loc == 0) return;
+
+    for (let b=0; b<nodei.metrics['social']; b++){
+      let j = d3.randomInt(0,allNodes.length)()
+      if (j == i) j = d3.randomInt(0,allNodes.length)()
+
+      if (j in connections[i]) {
+        connections[i][j]+=1
+        nodei['interactions']+=1
+        allI+=1
+      }else{
+          allI+=1
+          allC+=1
+        connections[i][j]=1
+        nodei['interactions']+=1
+        nodei['connections']+=1
+        console.log(connections[i][j]);
+      }
+    }
+    // allNodes.forEach((nodej, j) => {
+    //   if ( i == j || nodei.loc == 0) return;
+    //   if(nodei.loc == nodej.loc){
+    //     if (j in connections[i]) {
+    //       connections[i][j]+=1
+    //       nodei['interactions']+=1
+    //       allI+=1
+    //     }else{
+    //         allI+=1
+    //         allC+=1
+    //       connections[i][j]=1
+    //       nodei['interactions']+=1
+    //       nodei['connections']+=1
+    //     }
+    //   }
+    // })
   });
 
   // console.log("Uniq:", allC/2, "all", allI/2, JSON.stringify(connections));
@@ -636,6 +712,9 @@ function updateCounts(){
 }
 
 function simulate(n=5){
+  if (i > n){
+    reset()
+  }
   let counter = d3.select("#counter")
   let number = d3.select("#n").property("value")
   if(number) n = number
@@ -671,6 +750,7 @@ function resetNodes(){
     node.sel = true
     node.pos = pos[0]
     node.loc = 0
+
     updateColor()
 
   });
