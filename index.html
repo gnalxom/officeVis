@@ -59,18 +59,29 @@
       <div id="app">
         <br />
         <!-- <button class="button" id="state" onclick="toggleColor()">Show connections</button> -->
-        <div class="has-text-weight-bold">
-          <p>
-              Day: <span id="counter">0</span><br />
-              Unique Connections:<span id="conns">0</span><br />
-              Total Interactions:<span id="ints">0</span><br />
-          </p>
-          <br />
+        <div class="columns">
+          <div class="column is-half">
+            <div class="has-text-weight-bold">
+              <p>
+                Day: <span id="counter">0</span><br />
+                Unique Connections:<span id="conns">0</span><br />
+                Total Interactions:<span id="ints">0</span><br />
+                Family Time:<span id="family">0</span><br />
+                Work Time:<span id="work">0</span><br />
+              </p>
+              <br />
 
+            </div>
+          </div>
+          <!-- <div class="column is-half">
+            <svg id="radar"> -->
+              <!-- <circle r="5" fill="red"></circle> -->
+              <!-- <person v-for="person in persons" v-bind:person="person" v-bind:key="person.id"></person> -->
+            <!-- </svg> -->
+
+          <!-- </div> -->
         </div>
-        <p>
 
-        </p>
 
         <div class="columns">
           <div class="column is-half">
@@ -85,7 +96,6 @@
               <!-- <person v-for="person in persons" v-bind:person="person" v-bind:key="person.id"></person> -->
             </svg>
           </div>
-
         </div>
 
 

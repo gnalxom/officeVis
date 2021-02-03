@@ -703,12 +703,18 @@ let i = 1;
 function updateCounts(){
   let conns = d3.select("#conns")
   let ints = d3.select("#ints")
+  let fams = d3.select("#family")
+  let works = d3.select("#work")
 
   let allConns = allNodes.reduce((a, b) => a + b.connections, 0);
   let allInts = allNodes.reduce((a, b) => a + b.interactions, 0)
+  let allFam = allNodes.reduce((a, b) => a + b.metrics['family'], 0)
+  let allWork = allNodes.reduce((a, b) => a + b.metrics['work'], 0)
 
   conns.text(allConns/2)
   ints.text(allInts/2)
+  fams.text(allFam)
+  works.text(allWork)
 }
 
 function simulate(n=5){
@@ -786,6 +792,27 @@ function reset(){
 
   strength = -5
   console.log('reset');
+}
+let radialScale = d3.scaleLinear()
+    .domain([0,10])
+    .range([0,50]);
+let ticks = [2,4,6,8,10];
+
+let radarsvg = d3.select("#radar")
+    .attr("width", 200)
+    .attr("height", 200);
+
+setupRadar()
+function setupRadar(){
+  ticks.forEach(t =>
+    radarsvg.append("circle")
+    .attr("cx", 75)
+    .attr("cy", 75)
+    .attr("fill", "none")
+    .attr("stroke", "gray")
+    .attr("r", radialScale(t))
+);
+
 }
 
 // Vue.component('person', {
