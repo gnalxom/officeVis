@@ -778,6 +778,9 @@ function reset(){
   d3.select("#conns").text(0)
   d3.select("#ints").text(0)
   clearInterval(simTimer);
+  d3.select("#family").text(0)
+  d3.select("#work").text(0)
+  clearInterval(simTimer);
   resetConnections()
   resetLinks()
   setupMatrix(numNodes)
